@@ -1,29 +1,26 @@
-import chromedriver_autoinstaller
+import os
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException, TimeoutException
-
 import time
 from dotenv import load_dotenv
-import os
-
-# Installer ChromeDriver automatiquement
-chromedriver_autoinstaller.install()
 
 # Configurer les options de Chrome
 chrome_options = Options()
 chrome_options.add_argument("--headless")  # Utiliser le mode headless sur Heroku
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
-chrome_options.binary_location = "/usr/bin/google-chrome"  # Chemin vers l'exécutable Chrome sur Heroku
-
+chrome_options.add_argument("--disable-gpu")
+chrome_options.binary_location = "/app/.apt/usr/bin/google-chrome"
 
 # Initialiser le WebDriver
-driver = webdriver.Chrome(options=chrome_options)
+service = Service("/app/.chromedriver/bin/chromedriver")
+driver = webdriver.Chrome(service=service, options=chrome_options)
 
 
 
