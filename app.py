@@ -19,7 +19,7 @@ chrome_options.add_argument("--disable-gpu")
 chrome_options.binary_location = "/app/.apt/usr/bin/google-chrome-stable"
 
 # Initialiser le WebDriver
-service = Service("/app/.apt/usr/bin/chromedriver")
+service = Service("/app/.chrome-for-testing/chromedriver-linux64/chromedriver")
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
 load_dotenv()
