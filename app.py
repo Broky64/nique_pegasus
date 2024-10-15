@@ -76,7 +76,7 @@ try:
     consulter_emargements_link.click()
 
     # Attendre que la page des émargements charge
-    time.sleep(10)  # Délai supplémentaire pour s'assurer que tout est bien chargé
+    time.sleep(8)  # Délai supplémentaire pour s'assurer que tout est bien chargé
 
     # Basculer vers l'iframe pour accéder au contenu interne
     iframe = wait.until(EC.presence_of_element_located((By.XPATH, "//iframe[@name='pegasus_contenu']")))
@@ -98,11 +98,33 @@ try:
         else:
             print("L'élément avec la couleur d'arrière-plan spécifique n'a pas été trouvé.")
         
-        # Attendre 2 secondes, puis cliquer sur l'élément <canvas> via JavaScript
+        # Attendre 2 secondes, puis dessiner sur le <canvas>
         time.sleep(2)
         canvas_element = driver.find_element(By.TAG_NAME, 'canvas')
-        driver.execute_script("arguments[0].click();", canvas_element)
-        print("Élément <canvas> trouvé et cliqué via JavaScript.")
+
+        # Utiliser JavaScript pour simuler un dessin sur le canvas via des événements souris
+        driver.execute_script("""
+            function triggerMouseEvent(node, eventType, coordX, coordY) {
+                const mouseEvent = new MouseEvent(eventType, {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true,
+                    clientX: coordX,
+                    clientY: coordY,
+                    buttons: 1
+                });
+                node.dispatchEvent(mouseEvent);
+            }
+
+            const canvas = arguments[0];
+            const rect = canvas.getBoundingClientRect();
+
+            // Simuler un clic en maintenant, puis déplacer pour dessiner
+            triggerMouseEvent(canvas, 'mousedown', rect.left + 10, rect.top + 10);
+            triggerMouseEvent(canvas, 'mousemove', rect.left + 100, rect.top + 100);
+            triggerMouseEvent(canvas, 'mouseup', rect.left + 100, rect.top + 100);
+        """, canvas_element)
+        print("Dessiné sur l'élément <canvas> avec des événements souris simulés en JavaScript.")
 
         # Attendre 1 seconde, puis cliquer sur le bouton "Valider"
         time.sleep(1)
@@ -119,6 +141,6 @@ try:
         print(f"Une erreur est survenue lors de l'interaction avec un élément. Erreur : {e}")
 
 finally:
-    # Fermer le navigateur
     time.sleep(5)
+    # Fermer le navigateur
     driver.quit()
