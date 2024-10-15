@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+
+# Ajouter la clé GPG pour Google Chrome
+curl -sSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg
+
+# Ajouter la source de Google Chrome
+echo "deb [signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" | tee /etc/apt/sources.list.d/google-chrome.list
+
+# Mettre à jour les sources et installer Google Chrome
+apt-get update
+apt-get install -y google-chrome-stable
