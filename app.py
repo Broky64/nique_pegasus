@@ -7,6 +7,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotInteractableException
 import time
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+password = os.getenv('PEGASUS_PASSWORD')
 
 # Configurer les options de Chrome
 chrome_options = Options()
@@ -45,7 +51,6 @@ try:
     time.sleep(5)
 
     # Entrer le mot de passe directement dans le script
-    password = 'S5yL1#5$!#'
     password_input = wait.until(EC.visibility_of_element_located((By.NAME, 'passwd')))
     password_input.send_keys(password)
     password_input.send_keys(Keys.RETURN)
