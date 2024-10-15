@@ -1,14 +1,29 @@
+import chromedriver_autoinstaller
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotInteractableException
+from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException, TimeoutException
+
 import time
 from dotenv import load_dotenv
 import os
+
+# Installer ChromeDriver automatiquement
+chromedriver_autoinstaller.install()
+
+# Configurer les options de Chrome
+chrome_options = Options()
+chrome_options.add_argument("--headless")  # Utiliser le mode headless sur Heroku
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
+
+# Initialiser le WebDriver
+driver = webdriver.Chrome(options=chrome_options)
+
+
 
 load_dotenv()
 
@@ -20,10 +35,8 @@ chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
 
 # Définir le chemin vers le ChromeDriver
-service = Service('C:\\WORKSPACE\\niquepegasus\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe')
 
 # Initialiser le WebDriver
-driver = webdriver.Chrome(service=service, options=chrome_options)
 wait = WebDriverWait(driver, 40)  # Augmenter le temps d'attente
 
 try:
