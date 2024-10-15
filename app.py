@@ -5,7 +5,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import time
 
 # Configurer les options de Chrome
@@ -78,15 +78,27 @@ try:
     # Attendre que la page des émargements charge
     time.sleep(10)  # Délai supplémentaire pour s'assurer que tout est bien chargé
 
-    # Utiliser un XPath pour trouver l'élément par son style
+    # Basculer vers l'iframe pour accéder au contenu interne
+    iframe = wait.until(EC.presence_of_element_located((By.XPATH, "//iframe[@name='pegasus_contenu']")))
+    driver.switch_to.frame(iframe)
+
+    # Chercher tous les divs avec la classe "wc-cal-event"
     try:
-        div_cible = wait.until(EC.element_to_be_clickable(
-            (By.XPATH, "//div[contains(@style, 'background-color: rgb(245, 161, 62)')]")))
-        driver.execute_script("arguments[0].scrollIntoView();", div_cible)  # S'assurer que l'élément est visible
-        div_cible.click()  # Cliquer sur l'élément trouvé
-        print("Élément avec la couleur d'arrière-plan spécifique trouvé et cliqué.")
-    except TimeoutException:
-        print("L'élément avec le style de couleur d'arrière-plan spécifique n'a pas été trouvé.")
+        all_events = driver.find_elements(By.XPATH, "//div[contains(@class, 'wc-cal-event')]")
+        for event in all_events:
+            # Vérifier la couleur de fond de chaque élément
+            background_color = driver.execute_script("return window.getComputedStyle(arguments[0]).backgroundColor;", event)
+            if background_color == "rgb(245, 161, 62)":
+                # Faire défiler jusqu'à l'élément et le cliquer
+                driver.execute_script("arguments[0].scrollIntoView(true);", event)
+                time.sleep(1)  # Pause pour s'assurer que l'élément est visible
+                event.click()
+                print("Élément avec la couleur d'arrière-plan spécifique trouvé et cliqué.")
+                break
+        else:
+            print("L'élément avec la couleur d'arrière-plan spécifique n'a pas été trouvé.")
+    except NoSuchElementException:
+        print("Aucun élément avec la classe spécifiée n'a été trouvé.")
 
 finally:
     # Fermer le navigateur
