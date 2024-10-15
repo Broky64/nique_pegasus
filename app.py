@@ -16,24 +16,15 @@ chrome_options.add_argument("--headless")  # Utiliser le mode headless sur Herok
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
 chrome_options.add_argument("--disable-gpu")
-chrome_options.binary_location = "/app/.apt/usr/bin/google-chrome"
+chrome_options.binary_location = "/app/.apt/usr/bin/google-chrome-stable"
 
 # Initialiser le WebDriver
-service = Service("/app/.chromedriver/bin/chromedriver")
+service = Service("/app/.apt/usr/bin/chromedriver")
 driver = webdriver.Chrome(service=service, options=chrome_options)
-
-
 
 load_dotenv()
 
 password = os.getenv('PEGASUS_PASSWORD')
-
-# Configurer les options de Chrome
-chrome_options = Options()
-chrome_options.add_argument("--no-sandbox")
-chrome_options.add_argument("--disable-dev-shm-usage")
-
-# Définir le chemin vers le ChromeDriver
 
 # Initialiser le WebDriver
 wait = WebDriverWait(driver, 40)  # Augmenter le temps d'attente
