@@ -5,7 +5,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotInteractableException
 import time
 
 # Configurer les options de Chrome
@@ -97,9 +97,28 @@ try:
                 break
         else:
             print("L'élément avec la couleur d'arrière-plan spécifique n'a pas été trouvé.")
-    except NoSuchElementException:
-        print("Aucun élément avec la classe spécifiée n'a été trouvé.")
+        
+        # Attendre 2 secondes, puis cliquer sur l'élément <canvas> via JavaScript
+        time.sleep(2)
+        canvas_element = driver.find_element(By.TAG_NAME, 'canvas')
+        driver.execute_script("arguments[0].click();", canvas_element)
+        print("Élément <canvas> trouvé et cliqué via JavaScript.")
+
+        # Attendre 1 seconde, puis cliquer sur le bouton "Valider"
+        time.sleep(1)
+        valider_button = wait.until(EC.presence_of_element_located((By.XPATH, "//button[@type='submit' and contains(@class, 'button-action')]")))
+        
+        # Faire défiler jusqu'au bouton et le cliquer via JavaScript
+        driver.execute_script("arguments[0].scrollIntoView(true);", valider_button)
+        time.sleep(1)  # Pause pour s'assurer que le bouton est bien visible
+        
+        driver.execute_script("arguments[0].click();", valider_button)
+        print("Bouton 'Valider' trouvé et cliqué via JavaScript.")
+
+    except (NoSuchElementException, ElementNotInteractableException, TimeoutException) as e:
+        print(f"Une erreur est survenue lors de l'interaction avec un élément. Erreur : {e}")
 
 finally:
     # Fermer le navigateur
+    time.sleep(5)
     driver.quit()
