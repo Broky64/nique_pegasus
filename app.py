@@ -5,9 +5,10 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 import time
 
-# Configurer les options de Chrome (sans mode headless pour le débogage)
+# Configurer les options de Chrome
 chrome_options = Options()
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
@@ -17,21 +18,16 @@ service = Service('C:\\WORKSPACE\\niquepegasus\\chromedriver-win64\\chromedriver
 
 # Initialiser le WebDriver
 driver = webdriver.Chrome(service=service, options=chrome_options)
+wait = WebDriverWait(driver, 40)  # Augmenter le temps d'attente
 
 try:
     # Ouvrir le site web Pegasus
     driver.get("https://learning.estia.fr/pegasus/index.php")
 
-    # Attendre que la page charge (vous pouvez ajuster le temps selon votre connexion)
+    # Attendre que la page charge complètement
     time.sleep(5)
 
-    # Débug : Imprimer l'URL actuelle pour vérifier l'état
-    print("URL actuelle:", driver.current_url)
-
-    # Attente explicite pour que le bouton de connexion Microsoft soit cliquable
-    wait = WebDriverWait(driver, 20)
-    
-    # Utiliser le sélecteur XPath pour cibler l'élément <a> avec la classe 'authlink'
+    # Clic sur le bouton de connexion Microsoft
     microsoft_login_button = wait.until(
         EC.element_to_be_clickable((By.XPATH, "//a[@class='authlink' and contains(@href, 'o365Auth.php')]"))
     )
@@ -40,35 +36,31 @@ try:
     # Attendre la redirection vers la page Microsoft
     time.sleep(5)
 
-    # Débug : Imprimer l'URL actuelle pour vérifier la redirection
-    print("URL actuelle après redirection:", driver.current_url)
-
     # Entrer l'email Microsoft
     email_input = wait.until(EC.visibility_of_element_located((By.NAME, 'loginfmt')))
     email_input.send_keys("paul.brocvielle@etu.estia.fr")
     email_input.send_keys(Keys.RETURN)
 
+    # Attendre que le champ de mot de passe soit visible
     time.sleep(5)
 
-    # Attendre le chargement du champ de mot de passe
+    # Entrer le mot de passe directement dans le script
+    password = 'S5yL1#5$!#'
     password_input = wait.until(EC.visibility_of_element_located((By.NAME, 'passwd')))
-    password_input.send_keys("S5yL1#5$!#")
+    password_input.send_keys(password)
     password_input.send_keys(Keys.RETURN)
 
-    # Attendre quelques secondes pour que l'authentification se termine
+    # Attendre que la demande "Rester connecté" s'affiche
     time.sleep(5)
 
     # Gestion de la demande "Rester connecté"
     stay_signed_in_button = wait.until(EC.element_to_be_clickable((By.ID, 'idBtn_Back')))
     stay_signed_in_button.click()
 
-    # Attendre que la page charge après la réponse à la demande
+    # Attendre la redirection après connexion
     time.sleep(5)
 
-    # Débug : Imprimer l'URL après connexion
-    print("URL après connexion:", driver.current_url)
-
-    # Clic sur le **deuxième** menu "Vie Académique" (deuxième élément avec la classe 'km-menus-toggle')
+    # Clic sur le **deuxième** menu "Vie Académique"
     vie_academique_toggle = wait.until(
         EC.element_to_be_clickable((By.XPATH, "(//div[@class='km-menus-toggle'])[2]"))
     )
@@ -83,12 +75,19 @@ try:
     )
     consulter_emargements_link.click()
 
-    # Attendre que la page charge après avoir cliqué sur le lien
-    time.sleep(5)
+    # Attendre que la page des émargements charge
+    time.sleep(10)  # Délai supplémentaire pour s'assurer que tout est bien chargé
 
-    # Débug : Imprimer l'URL après avoir accédé à la page des émargements
-    print("URL après avoir cliqué sur 'Consulter mes émargements':", driver.current_url)
+    # Utiliser un XPath pour trouver l'élément par son style
+    try:
+        div_cible = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//div[contains(@style, 'background-color: rgb(245, 161, 62)')]")))
+        driver.execute_script("arguments[0].scrollIntoView();", div_cible)  # S'assurer que l'élément est visible
+        div_cible.click()  # Cliquer sur l'élément trouvé
+        print("Élément avec la couleur d'arrière-plan spécifique trouvé et cliqué.")
+    except TimeoutException:
+        print("L'élément avec le style de couleur d'arrière-plan spécifique n'a pas été trouvé.")
 
 finally:
-    # Fermer le navigateur (commentez ceci si vous souhaitez laisser le navigateur ouvert pour l'inspection manuelle)
+    # Fermer le navigateur
     driver.quit()
