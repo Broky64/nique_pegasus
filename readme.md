@@ -16,6 +16,12 @@ L'application utilise des variables d'environnement pour récupérer vos identif
 
 ## Lancement de l'application
 
+Télécharger l'image dans docker desktop
+
+```bash
+docker pull ghcr.io/broky64/nique_pegasus:1.0.0
+```
+
 Exécutez la commande suivante en remplaçant les valeurs par vos identifiants :
 
 ```bash
